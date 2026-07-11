@@ -14,9 +14,9 @@
 | Metric | Value |
 |---|---|
 | Total scope | ~1,094.5 hrs · 20 phases · 503 lessons |
-| Done so far | ~6.75 hrs (Phase 0 setup + Phase 1 · L1) |
-| Current | Phase 1 · Math Foundations — Lesson 1 done |
-| Next up | Phase 1 · Lesson 2 — Vectors, Matrices & Operations |
+| Done so far | ~7.75 hrs (Phase 0 setup + Phase 1 · L1–L2) |
+| Current | Phase 1 · Math Foundations — Lesson 2 done |
+| Next up | Phase 1 · Lesson 3 — Matrix Transformations |
 
 **Pace reference** — learning (Phases 0–18, ~475h) / everything (incl. capstones, ~1,095h):
 - 10 hrs/wk → ~11 months / ~2.1 years
@@ -29,7 +29,7 @@
 Legend: `[x]` done · `[~]` in progress · `[ ]` not started · 🎯 placement: skip-eligible · ⚠️ placement: review
 
 - [~] **Phase 0 — Setup & Tooling** · 6/12 · ~14h · *cum 14h* — 🚧 see lesson detail below
-- [~] **Phase 1 — Math Foundations** · 1/22 · ~23h · *cum 37h* · 🎯 ← **in progress**
+- [~] **Phase 1 — Math Foundations** · 2/22 · ~23h · *cum 37h* · 🎯 ← **in progress**
 - [ ] **Phase 2 — ML Fundamentals** · 0/18 · ~21h · *cum 58h* · ⚠️ review (Random Forest / hyperparameters)
 - [ ] **Phase 3 — Deep Learning Core** · 0/13 · ~15h · *cum 73h* · 🎯
 - [ ] **Phase 4 — Computer Vision** · 0/28 · ~27h · *cum 100h* · 🎯
@@ -86,3 +86,8 @@ Legend: `[x]` done · `[~]` in progress · `[ ]` not started · 🎯 placement: 
 - Covered: Phase 1 · Lesson 1 — Linear Algebra Intuition (all concept segments; ran `vectors.py`; NumPy one-liners; PyTorch autodiff)
 - Supplements: angle_between, is_independent/rank (row-reduction traces), gram_schmidt
 - Stopped at: **lesson complete** — resume at Phase 1 · Lesson 2 (Vectors, Matrices & Operations)
+
+### 2026-07-11
+- Covered: Phase 1 · Lesson 2 — Vectors, Matrices & Operations (all 7 segments: problem, shapes, ops map, element-wise vs matmul, broadcasting, ran `matrices.py`, NumPy parity)
+- Supplements: none — all check-ins answered correctly first try
+- Stopped at: **lesson complete** — resume at Phase 1 · Lesson 3 (Matrix Transformations)
