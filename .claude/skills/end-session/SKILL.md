@@ -1,7 +1,7 @@
 ---
 name: end-session
-version: 1.1.0
-description: Cleanly end an AI Engineering from Scratch learning session — finalize the lesson's docs/supplements.md, update the MY_PROGRESS.md tracker, commit locally, push, open a PR, and merge it. Trigger with "end session", "end my learning session", "wrap up for today", "I'm done for today", "save my progress and commit", or `/end-session`.
+version: 1.2.0
+description: Cleanly end an AI Engineering from Scratch learning session — finalize the lesson's docs/supplements.md, update the MY_PROGRESS.md tracker, auto-stage new lesson files, commit, push, open a PR, and merge it. Trigger with "end session", "end my learning session", "wrap up for today", "I'm done for today", "save my progress and commit", or `/end-session`.
 tags: [curriculum, ai-engineering, progress, git, wind-down]
 ---
 
@@ -41,10 +41,11 @@ Edit `MY_PROGRESS.md` at the repo root:
 
 ### 3. Commit
 - First show `git status --short` so the changes are visible.
-- Stage **only learning artifacts** by explicit path — don't `git add -A`:
-  - `MY_PROGRESS.md`
-  - each `docs/supplements.md` created/updated this session
-  - any lesson `outputs/` the learner produced
+- Stage **only learning artifacts** — don't `git add -A`. Two sub-rules:
+  - **By explicit path**, stage: `MY_PROGRESS.md`, each `docs/supplements.md` created/updated this session, and any lesson `outputs/` the learner produced.
+  - **Auto-stage new files under `phases/`**: any untracked file whose path matches `phases/**` is a learning artifact by definition (scratch notebooks, exercise solutions, extra code the learner wrote). Add them all in one shot with `git add phases/`. Modifications to already-tracked files under `phases/` are staged the same way.
+- **Never auto-stage** anything outside `phases/` or the explicit paths above. In particular, do not touch: files at repo root, `.env`, `.env.*`, `credentials.*`, `.venv/`, `node_modules/`, or anything the learner clearly created as throwaway (e.g. random `.log` or `.tmp` files). If you're unsure, ask.
+- If new files were auto-staged, mention them in the recap so the learner knows what got shipped.
 - Commit with a focused message:
   ```
   learn: <phase N · lesson(s) covered>
@@ -98,8 +99,10 @@ for next time (e.g. "Resume Phase 1 · Lesson 3 at *The Concept* section").
 - If not in a git repo, or nothing changed, say so and skip commit/push/PR gracefully.
 - If `gh` is not installed or unauthenticated, do the push and stop — tell the learner the
   PR step needs `gh auth login`.
-- Never force-push. Never delete the working branch. Never merge with `--squash` or `--merge`
-  in this flow — those change hashes in ways that make the local sync step lie.
+- Never plain `--force`-push. `--force-with-lease` is only sanctioned inside step 5's realign
+  substep and only against the learning branch — never against `main`. Never delete the
+  working branch. Never merge with `--squash` or `--merge` in this flow — those change hashes
+  in ways that make the local sync step lie.
 - Personal commits land on the current branch. If the learner tracks the upstream course
   repo and wants `main` clean, suggest a one-time `git switch -c learning-progress` — but
   don't force it.
