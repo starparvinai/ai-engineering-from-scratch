@@ -1,13 +1,13 @@
 ---
 name: end-session
-version: 1.0.0
-description: Cleanly end an AI Engineering from Scratch learning session — finalize the lesson's docs/supplements.md, update the MY_PROGRESS.md tracker, and make a local git commit. Trigger with "end session", "end my learning session", "wrap up for today", "I'm done for today", "save my progress and commit", or `/end-session`.
+version: 1.1.0
+description: Cleanly end an AI Engineering from Scratch learning session — finalize the lesson's docs/supplements.md, update the MY_PROGRESS.md tracker, commit locally, push, open a PR, and merge it. Trigger with "end session", "end my learning session", "wrap up for today", "I'm done for today", "save my progress and commit", or `/end-session`.
 tags: [curriculum, ai-engineering, progress, git, wind-down]
 ---
 
 # End Learning Session
 
-Wind down a tutoring session in three moves: **save supplements → update progress → commit.**
+Wind down a tutoring session in five moves: **save supplements → update progress → commit → push → PR + merge.**
 This is a wind-down, not a teaching turn — keep it fast and mechanical.
 
 ## Activation
@@ -39,7 +39,7 @@ Edit `MY_PROGRESS.md` at the repo root:
   - Stopped at: <exact resume point for next time>
   ```
 
-### 3. Commit (local only)
+### 3. Commit
 - First show `git status --short` so the changes are visible.
 - Stage **only learning artifacts** by explicit path — don't `git add -A`:
   - `MY_PROGRESS.md`
@@ -55,17 +55,51 @@ Edit `MY_PROGRESS.md` at the repo root:
 
   Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
   ```
-- Print the resulting commit hash + subject. **Do not `git push`** unless the learner asks.
+- Print the resulting commit hash + subject.
 
-### 4. Sign off
-One short recap: what was committed, where you stopped, and the exact next step for next
-time (e.g. "Resume Phase 1 · Lesson 1 at the *Use It* section"). Offer `git push` as an
-option if they want it off their machine.
+### 4. Push to remote
+- Push the current branch to `origin`, setting upstream if needed:
+  `git push -u origin <current-branch>`
+- If push fails (no remote, no network, auth), report and stop — do not force-push.
+
+### 5. Open PR → merge (rebase strategy)
+Only run this step if `origin` exists and the current branch differs from `main`. On `main`, skip PR ceremony (the commit is already on `main`).
+
+- **Open the PR** from the current branch → `main`:
+  ```
+  gh pr create --base main --head <current-branch> \
+    --title "learn: <phase N · lesson(s) covered>" \
+    --body "<summary lifted from the commit body>"
+  ```
+- **Merge with `--rebase`**, keep the branch:
+  ```
+  gh pr merge <PR#> --rebase --delete-branch=false
+  ```
+  Why rebase: it keeps `main` linear and preserves per-session commits as an unbroken log. It also lets us fast-forward the learning branch cleanly (see next step).
+- **Sync the local branch** so the next session doesn't start with a "diverged" branch:
+  ```
+  git fetch origin
+  git rebase origin/main
+  ```
+  GitHub's rebase-merge re-signs the commit (new hash), so a plain rebase against `origin/main` will show `previously applied commit ... skipped` and fast-forward the local branch. That is expected and correct.
+- **Realign the remote branch** so the next session's push isn't rejected. After the local rebase, `origin/<branch>` is stale (points at the old, re-signed commit) and no longer an ancestor of the local branch. Sync it with a lease-guarded force-push:
+  ```
+  git push --force-with-lease origin <current-branch>
+  ```
+  This is safe here — the "overwritten" remote commit's content lives on `main` under the new hash; no work is lost. Refuse to push if `--force-with-lease` reports the ref moved unexpectedly (someone else pushed) — investigate instead of retrying with `--force`.
+- Print the merged commit hash on `main` and the PR URL.
+
+### 6. Sign off
+One short recap: what was committed, PR merged, where you stopped, and the exact next step
+for next time (e.g. "Resume Phase 1 · Lesson 3 at *The Concept* section").
 
 ## Notes
 
-- If not in a git repo, or nothing changed, say so and skip the commit gracefully.
-- Local commit only; pushing is outward-facing — never do it unprompted.
+- If not in a git repo, or nothing changed, say so and skip commit/push/PR gracefully.
+- If `gh` is not installed or unauthenticated, do the push and stop — tell the learner the
+  PR step needs `gh auth login`.
+- Never force-push. Never delete the working branch. Never merge with `--squash` or `--merge`
+  in this flow — those change hashes in ways that make the local sync step lie.
 - Personal commits land on the current branch. If the learner tracks the upstream course
   repo and wants `main` clean, suggest a one-time `git switch -c learning-progress` — but
   don't force it.
